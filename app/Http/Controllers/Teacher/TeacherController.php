@@ -57,6 +57,7 @@ class TeacherController extends Controller
             'data' => [
                 'id' => $student->id,
                 'profile_picture' => $student->user->photo_url,
+                'role' => $student->user->role,
                 'name' => $student->user->name,
                 'total_points' => $student->total_points,
                 'quran_parts_memorized' => $student->quran_parts_memorized,
@@ -101,10 +102,12 @@ class TeacherController extends Controller
         ], 201);
     }
 
+
     public function setRatingAndNotes(Request $request, $sessionId)
     {
         $request->validate([
             'teacher_notes' => 'nullable|string',
+            'parts_memorized_increment' => 'nullable|integer|min:0|max:30' // Allow teacher to input how many parts the student gained
         ]);
 
         $teacher = Auth::user();
@@ -126,6 +129,19 @@ class TeacherController extends Controller
         // Find the student and update their total points
         $student = $session->student;
         $student->total_points += $request->rating;
+
+        // Update Quran parts memorized if provided by teacher
+        if ($request->filled('parts_memorized_increment')) {
+            $newPartsMemorized = $student->quran_parts_memorized + $request->parts_memorized_increment;
+
+            // Ensure that parts memorized doesn't exceed 30
+            if ($newPartsMemorized > 30) {
+                $newPartsMemorized = 30;
+            }
+
+            $student->quran_parts_memorized = $newPartsMemorized;
+        }
+
         $student->save();
 
         return response()->json([

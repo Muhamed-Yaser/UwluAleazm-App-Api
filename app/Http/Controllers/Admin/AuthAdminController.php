@@ -22,7 +22,7 @@ class AuthAdminController extends Controller
 
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json([
-                    'message' => __('Invalid email or password'),
+                    'message' => __('messages.Invalid email or password'),
                     'status' => 401
                 ], 401);
             }
@@ -30,7 +30,7 @@ class AuthAdminController extends Controller
             // Check if the user is an admin
             if ($user->role !== 'admin') {
                 return response()->json([
-                    'message' => __('Unauthorized - only admins can access this route'),
+                    'message' => __('messages.Unauthorized - only admins can access this route'),
                     'status' => 403
                 ], 403);
             }
@@ -46,7 +46,7 @@ class AuthAdminController extends Controller
             ], 200);
         } catch (Throwable $e) {
             return response()->json([
-                'message' => __('Error: :error', ['error' => $e->getMessage()]),
+                'message' => __('messages.Error: :error', ['error' => $e->getMessage()]),
                 'status' => 500
             ], 500);
         }
@@ -56,6 +56,6 @@ class AuthAdminController extends Controller
     {
         $request->user()->tokens()->delete();
 
-        return response()->json(['message' => __('Successfully logged out')], 200);
+        return response()->json(['message' => __('messages.Successfully logged out')], 200);
     }
 }

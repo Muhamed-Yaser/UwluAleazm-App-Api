@@ -115,7 +115,8 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => "required|email",
-            'password' => "required"
+            'password' => "required",
+            'device_token' => 'required|string',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -127,12 +128,19 @@ class AuthController extends Controller
             ], 401);
         }
 
+
         if ($user->status === 'pending') {
             return response()->json([
                 'message' => __('messages.wait_admin_approval'),
                 'status' => 403
             ], 403);
         }
+
+        $user->device_token = $request->device_token;
+        $user->save();
+
+        // User is logened on only one device
+        $user->tokens()->delete();
 
         $token = $user->createToken('auth_token')->plainTextToken;
         $role =  $user->role;

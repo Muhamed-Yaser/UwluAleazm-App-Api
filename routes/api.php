@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
@@ -58,4 +59,17 @@ Route::middleware('auth:sanctum')->group(function () {
     //profile
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::post('/profile', [ProfileController::class, 'update']);
+});
+
+//send notification command will do its job
+//  Route::get('send-meeting-reminders', [NotificationController::class, 'sendMeetingReminders']);
+Route::get('send-test-notification', function () {
+    $deviceToken = 'YOUR_TEST_DEVICE_TOKEN';
+    $title = 'Test Notification';
+    $body = 'This is a test notification message';
+
+    $notificationController = new NotificationController();
+    $notificationController->sendNotification($deviceToken, $title, $body);
+
+    return 'Notification sent!';
 });

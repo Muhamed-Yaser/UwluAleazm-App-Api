@@ -24,13 +24,13 @@ class AdminController extends Controller
             $user->save();
 
             return response()->json([
-                'message' => __('Teacher approved successfully'),
+                'message' => __('messages.Teacher approved successfully'),
                 'status' => 200,
                 'data' => $user,
             ], 200);
         }
 
-        return response()->json(['message' => __('User is not a teacher')], 400);
+        return response()->json(['message' => __('messages.User is not a teacher')], 400);
     }
 
     public function approveAllPendingTeachers()
@@ -43,7 +43,7 @@ class AdminController extends Controller
         }
 
         return response()->json([
-            'message' => __('All pending teachers approved successfully'),
+            'message' => __('messages.All pending teachers approved successfully'),
             'status' => 200,
         ], 200);
     }
@@ -54,13 +54,13 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
 
         if ($user->role !== 'teacher') {
-            return response()->json(['message' => __('User is not a teacher')], 400);
+            return response()->json(['message' => __('messages.User is not a teacher')], 400);
         }
 
         $user->delete();
 
         return response()->json([
-            'message' => __('Teacher rejected and deleted successfully'),
+            'message' => __('messages.Teacher rejected and deleted successfully'),
             'status' => 200,
         ], 200);
     }
@@ -74,7 +74,7 @@ class AdminController extends Controller
         }
 
         return response()->json([
-            'message' => __('All pending teachers rejected and deleted successfully'),
+            'message' => __('messages.All pending teachers rejected and deleted successfully'),
             'status' => 200,
         ], 200);
     }
@@ -89,11 +89,11 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
 
         if ($user->role !== 'student') {
-            return response()->json(['message' => __('User is not a student')], 400);
+            return response()->json(['message' => __('messages.User is not a student')], 400);
         }
 
         if ($user->status === 'approved') {
-            return response()->json(['message' => __('Student is already approved')], 200);
+            return response()->json(['message' => __('messages.Student is already approved')], 200);
         }
 
         $student = Student::updateOrCreate(
@@ -105,7 +105,7 @@ class AdminController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => __('Student approved and assigned to teacher successfully'),
+            'message' => __('messages.Student approved and assigned to teacher successfully'),
             'status' => 200,
             'data' => $user,
         ], 200);
@@ -116,13 +116,13 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
 
         if ($user->role !== 'student') {
-            return response()->json(['message' => __('User is not a student')], 400);
+            return response()->json(['message' => __('messages.User is not a student')], 400);
         }
 
         $user->delete();
 
         return response()->json([
-            'message' => __('Student rejected and deleted successfully'),
+            'message' => __('messages.Student rejected and deleted successfully'),
             'status' => 200,
         ], 200);
     }
@@ -132,7 +132,7 @@ class AdminController extends Controller
         $users = User::where('status', 'approved')->latest()->paginate(10);
 
         return response()->json([
-            'message' => __('Latest joined Teachers and Students'),
+            'message' => __('messages.Latest joined Teachers and Students'),
             'status' => 200,
             'data' => $users,
         ], 200);
@@ -155,7 +155,7 @@ class AdminController extends Controller
         });
 
         return response()->json([
-            'message' => __('Latest joined Teachers'),
+            'message' => __('messages.Latest joined Teachers'),
             'status' => 200,
             'data' => $teachers,
         ], 200);
@@ -181,7 +181,7 @@ class AdminController extends Controller
         });
 
         return response()->json([
-            'message' => __('Latest joined Students'),
+            'message' => __('messages.Latest joined Students'),
             'status' => 200,
             'data' => $students,
         ], 200);
@@ -224,14 +224,14 @@ class AdminController extends Controller
 
         if ($users->isEmpty()) {
             return response()->json([
-                'message' => __('No matching search'),
+                'message' => __('messages.No matching search'),
                 'status' => 200,
                 'data' => [],
             ], 200);
         }
 
         return response()->json([
-            'message' => __('Search results'),
+            'message' => __('messages.Search results'),
             'status' => 200,
             'data' => $users,
         ], 200);
@@ -244,11 +244,11 @@ class AdminController extends Controller
         if ($user->role === 'teacher' || $user->role === 'student') {
             $user->delete();
             return response()->json([
-                'message' => __('User deleted successfully'),
+                'message' => __('messages.User deleted successfully'),
                 'status' => 200,
             ], 200);
         }
 
-        return response()->json(['message' => __('User is not a teacher or student')], 400);
+        return response()->json(['message' => __('messages.User is not a teacher or student')], 400);
     }
 }
