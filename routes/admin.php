@@ -28,7 +28,11 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     //Show and operations on users
     Route::get('/users', [AdminController::class, 'showAllUsers']);
     Route::get('/teachers', [AdminController::class, 'showAllTeachers']);
+    Route::get('/pending-teachers', [AdminController::class, 'showAllPendingTeachers']);
+
     Route::get('/students', [AdminController::class, 'showAllStudents']);
+    Route::get('/pending-students', [AdminController::class, 'showAllPendingStudents']);
+
     Route::get('/users-count', [AdminController::class, 'getDashboardNumbers']);
     Route::post('/delete-user/{id}', [AdminController::class, 'deleteUser']);
 

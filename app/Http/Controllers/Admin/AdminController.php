@@ -161,6 +161,20 @@ class AdminController extends Controller
         ], 200);
     }
 
+    public function showAllPendingTeachers()
+    {
+        $teachers = User::where('role', 'teacher')->where('status', 'pending')
+            ->latest()
+            ->paginate(10);
+
+        return response()->json([
+            //'message' => __('messages.Latest joined Teachers'),
+            'message' => __('All pending teachers'),
+            'status' => 200,
+            'data' => $teachers,
+        ], 200);
+    }
+
     public function showAllStudents()
     {
         $students = User::where('role', 'student')->where('status', 'approved')
@@ -182,6 +196,20 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => __('messages.Latest joined Students'),
+            'status' => 200,
+            'data' => $students,
+        ], 200);
+    }
+
+    public function showAllPendingStudents()
+    {
+        $students = User::where('role', 'student')->where('status', 'pending')
+            ->latest()
+            ->paginate(10);
+
+        return response()->json([
+            //'message' => __('messages.Latest joined Students'),
+            'message' => __('All pending students'),
             'status' => 200,
             'data' => $students,
         ], 200);
