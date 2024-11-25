@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
+use App\Models\Student;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Events\OtpBroadcastEvent;
 use App\Http\Controllers\Controller;
-use App\Models\Student;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
+use App\Notifications\SendOtpNotification;
 
 class AuthController extends Controller
 {
@@ -93,6 +95,15 @@ class AuthController extends Controller
             $userData = array_merge($user->toArray(), ['quran_parts_memorized' => $student->quran_parts_memorized]);
         }
 
+        $otp = random_int(100000, 999999);
+        $user->otp_code = $otp; // Store OTP in database
+        $user->save();
+
+        $user->notify(new SendOtpNotification($otp));
+
+
+        // event(new OtpBroadcastEvent($otp,$user->id));
+
         // Send email verification
         // try {
         //    // $user->sendEmailVerificationNotification();
@@ -110,6 +121,33 @@ class AuthController extends Controller
             'data' => $userData,
         ], 201);
     }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+            'otp_code' => ['required', 'numeric'],
+        ]);
+
+        $user = User::where('email', $request->email)->firstOrFail();
+
+        if ($user->otp_code == $request->otp_code) {
+            $user->email_verified_at = now();
+            $user->otp_code = null; // Clear the OTP code after verification
+            $user->save();
+
+            return response()->json([
+                'message' => __('messages.otp_verified_successfully'),
+                'status' => 200,
+            ]);
+        }
+
+        return response()->json([
+            'message' => __('messages.invalid_otp_code'),
+            'status' => 400,
+        ], 400);
+    }
+
 
     public function login(Request $request)
     {
@@ -150,6 +188,66 @@ class AuthController extends Controller
             'role' => $role,
             'status' => 200,
             'data' => $user,
+        ], 200);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => __('messages.user_not_found'),
+                'status' => 404,
+            ], 404);
+        }
+
+        $otp = random_int(100000, 999999);
+        $user->otp_code = $otp;
+        $user->otp_expires_at = now()->addMinutes(10);
+        $user->save();
+
+        $user->notify(new SendOtpNotification($otp));
+
+        return response()->json([
+            'message' => __('messages.otp_sent_for_password_reset'),
+            'status' => 200,
+        ], 200);
+    }
+
+    public function resetPasswordWithOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp_code' => 'required|numeric',
+            'password' => 'required|string|min:8',
+        ]);
+
+        $user = User::where('email', $request->email)
+            ->where('otp_code', $request->otp_code)
+            ->where('otp_expires_at', '>', now()) // Ensure OTP is still valid
+            ->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => __('messages.invalid_or_expired_otp'),
+                'status' => 400,
+            ], 400);
+        }
+
+        // Update the user password
+        $user->password = Hash::make($request->password);
+        $user->otp_code = null; // Clear OTP code
+        $user->otp_expires_at = null; // Clear OTP expiration
+        $user->save();
+
+        return response()->json([
+            'message' => __('messages.password_reset_successfully'),
+            'status' => 200,
         ], 200);
     }
 

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('otp_code')->nullable()->after('gender');
+            $table->string('otp_expires_at')->nullable()->after('otp_code');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('otp_code');
+            $table->dropColumn('otp_expires_at');
         });
     }
 };

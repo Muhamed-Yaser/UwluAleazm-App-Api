@@ -4,19 +4,21 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class SendOtpNotification extends Notification
 {
     use Queueable;
+    protected $otp;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($otp)
     {
-        //
+        $this->otp = $otp;
     }
 
     /**
@@ -26,7 +28,7 @@ class SendOtpNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['broadcast'];
     }
 
     /**
@@ -40,6 +42,13 @@ class SendOtpNotification extends Notification
                     ->line('Thank you for using our application!');
     }
 
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage([
+            'message' => "Your OTP Code is: {$this->otp}",
+        ]);
+    }
+
     /**
      * Get the array representation of the notification.
      *
@@ -48,7 +57,7 @@ class SendOtpNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'otp' => $this->otp,
         ];
     }
-}
+}   

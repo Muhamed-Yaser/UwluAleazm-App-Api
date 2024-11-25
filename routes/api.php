@@ -25,10 +25,26 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 //Auth
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-// Send verification email link
+//Rest Password
+Route::post('password/forgot', [AuthController::class, 'forgotPassword']);
+Route::post('password/reset-with-otp', [AuthController::class, 'resetPasswordWithOtp']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    //profile
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile', [ProfileController::class, 'update']);
+});
+
+//Rest Password - not used
+Route::post('/password/email', [PasswordResetController::class, 'sendResetLinkEmail']);
+Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
+
+
+// Send verification email link - not used
 Route::middleware(['auth:sanctum'])->get('/email/verify', function (Request $request) {
     if ($request->user()->hasVerifiedEmail()) {
         return response()->json(['message' => 'Email already verified.']);
@@ -39,26 +55,16 @@ Route::middleware(['auth:sanctum'])->get('/email/verify', function (Request $req
     return response()->json(['message' => 'Verification link sent!']);
 });
 
-// Verify email
+// Verify email - not used
 Route::middleware(['auth:sanctum'])->get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
 
     return response()->json(['message' => 'Email verified successfully.']);
 })->name('verification.verify');
 
-// Check verification status
+// Check verification status - not used
 Route::middleware(['auth:sanctum'])->get('/email/check-status', function (Request $request) {
     return response()->json(['email_verified' => $request->user()->hasVerifiedEmail()]);
-});
-
-//Rest Password
-Route::post('/password/email', [PasswordResetController::class, 'sendResetLinkEmail']);
-Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
-
-Route::middleware('auth:sanctum')->group(function () {
-    //profile
-    Route::get('/profile', [ProfileController::class, 'show']);
-    Route::post('/profile', [ProfileController::class, 'update']);
 });
 
 //send notification command will do its job
