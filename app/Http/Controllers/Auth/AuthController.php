@@ -119,6 +119,7 @@ class AuthController extends Controller
             'message' => __('messages.user_registered_successfully'),
             'status' => 201,
             'data' => $userData,
+            'otp_number' => $otp,
         ], 201);
     }
 
